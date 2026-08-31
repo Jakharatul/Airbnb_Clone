@@ -61,17 +61,22 @@ app.use(async (req, res, next) => {
 //     res.send("i am root");
 // });
 
-const store = MongoStore.create({
-    mongoUrl: dbUrl,
-    crypto: {
-        secret: process.env.SECRET,
-    },
-    touchAfter: 24 * 3600,
-});
+let store;
+if (dbUrl) {
+    store = MongoStore.create({
+        mongoUrl: dbUrl,
+        crypto: {
+            secret: process.env.SECRET || "thisshouldbeabettersecret!",
+        },
+        touchAfter: 24 * 3600,
+    });
 
-store.on("error",(err)=>{
-    console.log("ERROR in MONGO SESSION STORE", err);
-});
+    store.on("error",(err)=>{
+        console.log("ERROR in MONGO SESSION STORE", err);
+    });
+} else {
+    console.error("WARNING: ATLASDB_URL environment variable is missing!");
+}
 
 const sessionOptions = {
     store: store,
