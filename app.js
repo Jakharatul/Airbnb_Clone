@@ -35,12 +35,25 @@ app.use(express.static(path.join(__dirname,"/public")));
 const dbUrl = process.env.ATLASDB_URL;
 
 async function main(){
-    await mongoose.connect(dbUrl);
+    if (mongoose.connection.readyState >= 1) return;
+    if (dbUrl) {
+        await mongoose.connect(dbUrl);
+        console.log("Connection successfully");
+    }
 }
-main().then(res=>{
-    (console.log("Connection succesfully"));
-}).catch(err =>{
-    console.log(err);
+main().catch(err =>{
+    console.log("MongoDB connection error:", err);
+});
+
+app.use(async (req, res, next) => {
+    if (mongoose.connection.readyState < 1 && dbUrl) {
+        try {
+            await mongoose.connect(dbUrl);
+        } catch (err) {
+            console.error("Mongoose serverless connection error:", err);
+        }
+    }
+    next();
 });
 
 // //ROOT API
