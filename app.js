@@ -56,8 +56,8 @@ const store = MongoStore.create({
     touchAfter: 24 * 3600,
 });
 
-store.on("error",()=>{
-    console.log("ERROR in MONGO SESSION STORE", error);
+store.on("error",(err)=>{
+    console.log("ERROR in MONGO SESSION STORE", err);
 });
 
 const sessionOptions = {
@@ -143,8 +143,10 @@ app.all("/*splat", (req, res, next) => {
 
 app.use((err,req,res,next)=>{
     let {statusCode=500,message="Something went wrong"} = err;
+    res.locals.success = res.locals.success || [];
+    res.locals.error = res.locals.error || [];
+    res.locals.currentUser = res.locals.currentUser || null;
     res.status(statusCode).render("error.ejs",{err});
-
 });
 
 const PORT = process.env.PORT || 8080;
