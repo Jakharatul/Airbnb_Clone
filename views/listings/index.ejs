@@ -20,6 +20,18 @@
         .filter p{
             font-size: 0.8rem;
         }
+        .filter-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .filter-link:hover {
+            color: inherit;
+        }
+        .active-filter .filter {
+            opacity: 1;
+            border-bottom: 2px solid #fe424d;
+            padding-bottom: 0.2rem;
+        }
         .tax-info{
             display: none;
         }
@@ -30,73 +42,40 @@
             padding: 1rem;
             margin-left: 2rem;
             display: flex;
-            align-items: centre;
+            align-items: center;
         }
     </style>
 
 <div id="filters">
+    <% 
+      const categories = [
+        { name: "Trending", icon: "fa-solid fa-fire" },
+        { name: "Rooms", icon: "fa-solid fa-bed" },
+        { name: "Iconic Cities", icon: "fa-solid fa-mountain-city" },
+        { name: "Mountains", icon: "fa-solid fa-mountain" },
+        { name: "Castles", icon: "fa-brands fa-fort-awesome" },
+        { name: "Arctic", icon: "fa-solid fa-snowflake" },
+        { name: "Camping", icon: "fa-solid fa-tents" },
+        { name: "Farms", icon: "fa-solid fa-cow" },
+        { name: "Domes", icon: "fa-solid fa-igloo" },
+        { name: "Boats", icon: "fa-solid fa-sailboat" }
+      ];
+    %>
 
-    <div class="filter">
-        <div>
-            <i class="fa-solid fa-fire"></i>
-        </div>
-        <p>Trending</p>
-    </div>
-
-    <div class="filter">
-        <div>
-            <i class="fa-solid fa-bed"></i>
-        </div>
-        <p>Rooms</p>
-    </div>
-    <div class="filter">
-        <div>
-            <i class="fa-solid fa-mountain-city"></i>
-        </div>
-        <p>Iconic Cities</p>
-    </div>
-    <div class="filter">
-        <div>
-            <i class="fa-solid fa-mountain"></i>
-        </div>
-        <p>Mountains</p>
-    </div>
-    <div class="filter">
-        <div>
-            <i class="fa-brands fa-fort-awesome"></i>
-        </div>
-        <p>castles</p>
-    </div>
-    <div class="filter">
-        <div>
-            <i class="fa-solid fa-snowflake"></i>
-        </div>
-        <p>Arctic</p>
-    </div>
-    <div class="filter">
-        <div>
-            <i class="fa-solid fa-tents"></i>
-        </div>
-        <p>Camping</p>
-    </div>
-    <div class="filter">
-        <div>
-            <i class="fa-solid fa-cow"></i>
-        </div>
-        <p>Farms</p>
-    </div>
-    <div class="filter">
-        <div>
-            <i class="fa-solid fa-igloo"></i>
-        </div>
-        <p>Domes</p>
-    </div>
-    <div class="filter">
-        <div>
-            <i class="fa-solid fa-sailboat"></i>
-        </div>
-        <p>Boats</p>
-    </div>
+    <% for (let cat of categories) { %>
+        <% 
+            const isSelected = (typeof category !== 'undefined' && category && category.toLowerCase() === cat.name.toLowerCase());
+            let filterUrl = isSelected ? '/listings' : `/listings?category=${encodeURIComponent(cat.name)}`;
+        %>
+        <a href="<%= filterUrl %>" class="filter-link <%= isSelected ? 'active-filter' : '' %>">
+            <div class="filter">
+                <div>
+                    <i class="<%= cat.icon %>"></i>
+                </div>
+                <p><%= cat.name %></p>
+            </div>
+        </a>
+    <% } %>
 
     <div class="tax-toggle">
         <div class="form-check-reverse form-switch">
@@ -107,21 +86,29 @@
 
 </div>
     <div class="row row-cols-lg-3 row-cols-md-3 row-cols-sm-1 mt-3">
-        <% for(let listing of allListings){%>
-        <a href="/listings/<%=listing._id %>" class="listing-links"> 
-        <div class="card col listing-card">
-         <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem;">
-            <div class="card-img-overlay"></div>
-            <div class="card-body">
-            <p class="card-text">
-                <b><%= listing.title %></b><br>
-                ₹ <%= listing.price.toLocaleString("en-IN") %>/night
-                <i class="tax-info">&nbsp; &nbsp; +18% GST</i>
-            </p>
+        <% if (allListings.length === 0) { %>
+            <div class="col-12 mt-4 mb-5 text-center">
+                <h4>No listings found!</h4>
+                <p class="text-muted">No listings match your filter or search criteria.</p>
+                <a href="/listings" class="btn btn-outline-dark mt-2">Clear Filters</a>
             </div>
-        </div>
-        <% }%>
-        </a>   
+        <% } else { %>
+            <% for(let listing of allListings){%>
+            <a href="/listings/<%=listing._id %>" class="listing-links"> 
+            <div class="card col listing-card">
+             <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem;">
+                <div class="card-img-overlay"></div>
+                <div class="card-body">
+                <p class="card-text">
+                    <b><%= listing.title %></b><br>
+                    &#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : 0 %>/night
+                    <i class="tax-info">&nbsp; &nbsp; +18% GST</i>
+                </p>
+                </div>
+            </div>
+            </a>
+            <% }%>
+        <% } %>
     </div>
 
 <script>
